@@ -1,0 +1,5 @@
+ENCRYPT
+./book-cryptor encrypt --in=file1.txt --key=book.pdf --mode=beale --out=file2.txt
+
+DECRYPT
+./book-cryptor decrypt --in=file2.txt --key=book.pdf --mode=beale --out=file1.txt
