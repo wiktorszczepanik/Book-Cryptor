@@ -5,10 +5,9 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"book-cryptor/internal"
 	"fmt"
 	"os"
-
-	"book-cryptor/internal"
 
 	"github.com/spf13/cobra"
 )
@@ -36,13 +35,15 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		keyFile := internal.GetFile(keyFilePath)
 		switch mode {
 		case "beale":
-			// ...
+			cipher := internal.EncryptBeale(inputFile, keyFile)
 		case "ottendorf":
 			//...
 		default:
 			fmt.Fprint(os.Stderr, "Incorrect encryption mode: %s", mode)
 			os.Exit(1)
 		}
+		defer inputFile.Close()
+		defer keyFile.Close()
 		fmt.Println("encrypt called")
 	},
 }
@@ -54,5 +55,3 @@ func init() {
 	encryptCmd.Flags().StringVarP(&outputFilePath, "out", "o", "", "Encryption output file")
 	rootCmd.AddCommand(encryptCmd)
 }
-
-func encryptBeale(input *os.File, key *os.File) string {}
