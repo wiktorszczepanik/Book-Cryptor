@@ -3,6 +3,7 @@ package file
 import (
 	"errors"
 	"log"
+	"bufio"
 	"os"
 	"path/filepath"
 )
@@ -15,18 +16,39 @@ func GetFile(filePath string) *os.File {
 	return file
 }
 
-func GetKeyFileExt(file *os.File) string {
+func GetKeyFileExt(file *os.File) (string, error) {
 	ext := filepath.Ext(file.Name())
 	if !(ext == "txt" || ext == "pdf" || ext == "epub") {
-		log.Fatal(errors.New("Incorrect key file extension."))
+		return "", errors.New("Incorrect key file extension.")
 	}
-	return ext
+	return ext, nil
 }
 
-func GetInputFileExt(file *os.File) string {
+func CheckInputFile(file *os.File) error {
 	ext := filepath.Ext(file.Name())
 	if ext != "txt" {
-		log.Fatal(errors.New("Incorrect input file extension."))
+		return errors.New("Incorrect input file extension.")
 	}
-	return ext
+	return nil
+}
+
+func CollectTxtRuneSet(txtFile *os.File) map[rune]bool {
+	runeSet := make(map[rune]bool)
+	scanner := bufio.NewScanner(txtFile)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		word := scanner.Text()
+		for _, letter := range word {
+			runeSet[letter] = true
+		}
+	}
+	return runeSet
+}
+
+func CollectPdfRuneSet(txtFile *os.File) map[rune]bool {
+	return nil
+}
+
+func CollectEpubRuneSet(txtFile *os.File) map[rune]bool {
+	return nil
 }
