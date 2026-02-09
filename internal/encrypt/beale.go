@@ -4,73 +4,130 @@ import (
 	"book-cryptor/internal/file"
 	"book-cryptor/internal/operations"
 	"bufio"
+	"errors"
+	"math/big"
+	"math/rand"
 	"os"
+	"strconv"
+	"strings"
 )
 
+type bealeCipherInfo struct {
+	InputFileExt string
+	KeyFileExt   string
+	InputFileSize int64
+	KeyFileSize int64
+	Size         big.Int
+	Slice        []int64
+	Text         strings.Builder
+}
+
 func EncryptBeale(input, key *os.File) (string, error) {
-	// Checking files
-	var keyFileExt string
+	cipher := &bealeCipherInfo{}
 	var err error
-	if keyFileExt, err = checkBeale(input, key); err != nil {
+	if err = checkBeale(input, key, cipher); err != nil {
 		return "", err
 	}
-
-	// Cipher reference
-	cipherSize, err := file.GetCipherSize(input)
-	cipherSlice := make([]int, cipherSize)
-	cipherPtr := &cipherSlice
-	if err != nil {
-		return "", err
-	}
-
-	switch keyFileExt {
+	switch cipher.KeyFileExt {
 	case "txt":
-		err = encryptBealeFromTxt(input, key, cipherPtr)
+		err = encryptBealeFromTxt(input, key, cipher)
 	case "pdf":
-		err = encryptBealeFromPdf(input, key, cipherPtr)
+		err = encryptBealeFromPdf(input, key, cipher)
 	case "epub":
-		err = encryptBealeFromEpub(input, key, cipherPtr)
+		err = encryptBealeFromEpub(input, key, cipher)
 	}
 	if err != nil {
 		return "", err
 	}
-	cipher := convertToString(cipherPtr)
-	return cipher, nil
-}
-
-func encryptBealeFromTxt(input, key *os.File, cipherPtr *[]int) error {
-	return nil
-}
-
-func encryptBealeFromPdf(input, key *os.File, cipherPtr *[]int) error {
-	return nil
-}
-
-func encryptBealeFromEpub(input, key *os.File, cipherPtr *[]int) error {
-	return nil
-}
-
-func convertToString(cipherPtr *[]int) string {
-	return ""
-}
-
-// Only for txt files (for now)
-func checkBeale(input, key *os.File) (string, error) {
-	var err error
-	if err = file.CheckInputFile(input); err != nil {
+	var encrypted string
+	if encrypted, err = convertToString(cipher); err != nil {
 		return "", err
 	}
-	var keyFileExt string
-	if keyFileExt, err = file.GetKeyFileExt(key); err != nil {
-		return "", err
+	return encrypted, nil
+}
+
+func encryptBealeFromTxt(input, key *os.File, cipher *bealeCipherInfo) error {
+	keySize := cipher.KeyFileSize
+	inputScanner := bufio.NewScanner(input)
+	inputScanner.Split(bufio.ScanWords)
+	var err error
+	for inputScanner.Scan() {
+		word := inputScanner.Text()
+		runes := []rune(word)
+		for _, r := range runes {
+			var runeLocation int64
+			if runeLocation, err = findByRuneInTxt(r, key, keySize); err != nil {
+				return err
+			}
+			*&cipher.Slice = append(*&cipher.Slice, runeLocation)
+		}
+	}
+	return nil
+}
+
+func findByRuneInTxt(inputRune rune, keyFile *os.File, size int64) (int64, error) {
+	// data, err := os.ReadFile(keyFile.Name())
+	// if err != nil {
+	// 	return 0, err
+	// }
+	// runes := []rune(string(data))
+	// startIndex := rand.Intn(len(runes))
+	// for i := 0; i < len(runes); i++ {
+
+	// }
+
+
+	startOffset := rand.Int63n(size)
+	if _, err := keyFile.Seek(startOffset, 0); err != nil {
+		return 0, errors.New("Character could not be found in key file.")
+	}
+	scanner := bufio.NewScanner(keyFile)
+	scanner.Split(bufio.ScanRunes)
+	for scanner.Scan() {
+		character := scanner.Text()
+		if character == string(inputRune) {
+			return //
+		}
+	}
+}
+
+func encryptBealeFromPdf(input, key *os.File, cipher *bealeCipherInfo) error {
+	return nil
+}
+
+func encryptBealeFromEpub(input, key *os.File, cipher *bealeCipherInfo) error {
+	return nil
+}
+
+func convertToString(cipher *bealeCipherInfo) (string, error) {
+	cipher.Text.Grow(len(cipher.Slice) * 8) // for test
+	for i := range *&cipher.Slice {
+		cipher.Text.WriteString(strconv.Itoa(i) + ", ")
+	}
+	encrypted := cipher.Text.String()
+	return encrypted[:len(encrypted)-2], nil
+}
+
+func checkBeale(input, key *os.File, cipher *bealeCipherInfo) error {
+	var err error
+	if *&cipher.InputFileSize, err = file.GetFileSize(input); err != nil {
+		return err
+	}
+	if *&cipher.KeyFileSize, err = file.GetFileSize(key); err != nil {
+		return err
+	}
+	if *&cipher.InputFileExt, err = file.GetInputFileExt(input); err != nil {
+		return err
+	}
+	if *&cipher.KeyFileExt, err = file.GetKeyFileExt(key); err != nil {
+		return err
 	}
 	var inputRuneSet map[rune]bool
-	if inputRuneSet, err = file.CollectTxtRuneSet(input); err != nil {
-		return "", err
+	if inputRuneSet, *&cipher.Size, err = file.CollectTxtRuneSet(input); err != nil {
+		return err
 	}
-
 	var keyRuneSet map[rune]bool
-	switch keyFileExt {
+	switch *&cipher.KeyFileExt {
 	case "txt":
 		keyRuneSet, err = collectBealeTxtRuneSet(key)
 	case "pdf":
@@ -79,12 +136,12 @@ func checkBeale(input, key *os.File) (string, error) {
 		keyRuneSet, err = collectBealeEpubRuneSet(key)
 	}
 	if err != nil {
-		return "", err
+		return err
 	}
 	if err = operations.CompareRuneSets(inputRuneSet, keyRuneSet); err != nil {
-		return "", err
+		return err
 	}
-	return keyFileExt, nil
+	return nil
 }
 
 // Collect first letter of every word in txt file

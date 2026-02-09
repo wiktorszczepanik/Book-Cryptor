@@ -3,6 +3,7 @@ package file
 import (
 	"bufio"
 	"errors"
+	"math/big"
 	"os"
 	"path/filepath"
 	"unicode/utf8"
@@ -16,6 +17,14 @@ func GetFile(filePath string) (*os.File, error) {
 	return file, nil
 }
 
+func GetFileSize(file *os.File) (int64, error) {
+	info, err := file.Stat()
+	if err != nil {
+		return 0, err
+	}
+	return info.Size(), nil
+}
+
 func GetKeyFileExt(file *os.File) (string, error) {
 	ext := filepath.Ext(file.Name())
 	if !(ext == "txt" || ext == "pdf" || ext == "epub") {
@@ -24,12 +33,12 @@ func GetKeyFileExt(file *os.File) (string, error) {
 	return ext, nil
 }
 
-func CheckInputFile(file *os.File) error {
+func GetInputFileExt(file *os.File) (string, error) {
 	ext := filepath.Ext(file.Name())
 	if ext != "txt" {
-		return errors.New("Incorrect input file extension.")
+		return "", errors.New("Incorrect input file extension.")
 	}
-	return nil
+	return "txt", nil
 }
 
 func GetCipherSize(input *os.File) (int64, error) {
@@ -47,21 +56,23 @@ func GetCipherSize(input *os.File) (int64, error) {
 	return counter, nil
 }
 
-func CollectTxtRuneSet(txtFile *os.File) (map[rune]bool, error) {
+func CollectTxtRuneSet(txtFile *os.File) (map[rune]bool, big.Int, error) {
 	runeSet := make(map[rune]bool)
 	scanner := bufio.NewScanner(txtFile)
 	scanner.Split(bufio.ScanWords)
+	var sizeCouner int64 = 0
 	for scanner.Scan() {
 		word := scanner.Text()
 		for _, letter := range word {
 			runeSet[letter] = true
+			sizeCouner++
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, err
+		return nil, *big.NewInt(0), err
 	}
 	txtFile.Seek(0, 0)
-	return runeSet, nil
+	return runeSet, *big.NewInt(sizeCouner), nil
 }
 
 func CollectPdfRuneSet(txtFile *os.File) map[rune]bool {
