@@ -1,19 +1,19 @@
 package file
 
 import (
-	"errors"
-	"log"
 	"bufio"
+	"errors"
 	"os"
 	"path/filepath"
+	"unicode/utf8"
 )
 
-func GetFile(filePath string) *os.File {
-	file, error := os.Open(filePath)
-	if error != nil {
-		log.Fatal(error)
+func GetFile(filePath string) (*os.File, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, errors.New("Can't open provided file.")
 	}
-	return file
+	return file, nil
 }
 
 func GetKeyFileExt(file *os.File) (string, error) {
@@ -32,6 +32,21 @@ func CheckInputFile(file *os.File) error {
 	return nil
 }
 
+func GetCipherSize(input *os.File) (int64, error) {
+	scanner := bufio.NewScanner(input)
+	scanner.Split(bufio.ScanWords)
+	var counter int64 = 0
+	for scanner.Scan() {
+		wordSize := utf8.RuneCountInString(scanner.Text())
+		counter += int64(wordSize)
+	}
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+	input.Seek(0, 0)
+	return counter, nil
+}
+
 func CollectTxtRuneSet(txtFile *os.File) (map[rune]bool, error) {
 	runeSet := make(map[rune]bool)
 	scanner := bufio.NewScanner(txtFile)
@@ -45,6 +60,7 @@ func CollectTxtRuneSet(txtFile *os.File) (map[rune]bool, error) {
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
+	txtFile.Seek(0, 0)
 	return runeSet, nil
 }
 

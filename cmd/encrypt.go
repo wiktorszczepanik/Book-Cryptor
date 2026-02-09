@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"book-cryptor/internal"
+	"crypto/cipher"
 	"fmt"
 	"os"
 
@@ -33,9 +34,11 @@ Supported mode techniques are "beale" "Ottendorf"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		inputFile := internal.GetFile(inputFilePath)
 		keyFile := internal.GetFile(keyFilePath)
+		var cipher string
+		var err error
 		switch mode {
 		case "beale":
-			cipher := internal.EncryptBeale(inputFile, keyFile)
+			cipher, err := internal.EncryptBeale(inputFile, keyFile)
 		case "ottendorf":
 			//...
 		default:
@@ -45,6 +48,7 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		defer inputFile.Close()
 		defer keyFile.Close()
 		fmt.Println("encrypt called")
+		fmt.Println(cipher)
 	},
 }
 

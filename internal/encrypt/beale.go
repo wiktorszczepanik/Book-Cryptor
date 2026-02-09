@@ -8,24 +8,67 @@ import (
 )
 
 func EncryptBeale(input, key *os.File) (string, error) {
-	if err := checkBeale(input, key); err != nil {
+	// Checking files
+	var keyFileExt string
+	var err error
+	if keyFileExt, err = checkBeale(input, key); err != nil {
 		return "", err
 	}
+
+	// Cipher reference
+	cipherSize, err := file.GetCipherSize(input)
+	cipherSlice := make([]int, cipherSize)
+	cipherPtr := &cipherSlice
+	if err != nil {
+		return "", err
+	}
+
+	switch keyFileExt {
+	case "txt":
+		err = encryptBealeFromTxt(input, key, cipherPtr)
+	case "pdf":
+		err = encryptBealeFromPdf(input, key, cipherPtr)
+	case "epub":
+		err = encryptBealeFromEpub(input, key, cipherPtr)
+	}
+	if err != nil {
+		return "", err
+	}
+	cipher := convertToString(cipherPtr)
+	return cipher, nil
+}
+
+func encryptBealeFromTxt(input, key *os.File, cipherPtr *[]int) error {
+	return nil
+}
+
+func encryptBealeFromPdf(input, key *os.File, cipherPtr *[]int) error {
+	return nil
+}
+
+func encryptBealeFromEpub(input, key *os.File, cipherPtr *[]int) error {
+	return nil
+}
+
+func convertToString(cipherPtr *[]int) string {
+	return ""
 }
 
 // Only for txt files (for now)
-func checkBeale(input, key *os.File) error {
-	if err := file.CheckInputFile(input); err != nil {
-		return err
+func checkBeale(input, key *os.File) (string, error) {
+	var err error
+	if err = file.CheckInputFile(input); err != nil {
+		return "", err
 	}
-	keyFileExt, err := file.GetKeyFileExt(key)
-	if err != nil {
-		return err
+	var keyFileExt string
+	if keyFileExt, err = file.GetKeyFileExt(key); err != nil {
+		return "", err
 	}
-	inputRuneSet, err := file.CollectTxtRuneSet(input) // always .txt file
-	if err != nil {
-		return err
+	var inputRuneSet map[rune]bool
+	if inputRuneSet, err = file.CollectTxtRuneSet(input); err != nil {
+		return "", err
 	}
+
 	var keyRuneSet map[rune]bool
 	switch keyFileExt {
 	case "txt":
@@ -36,12 +79,12 @@ func checkBeale(input, key *os.File) error {
 		keyRuneSet, err = collectBealeEpubRuneSet(key)
 	}
 	if err != nil {
-		return err
+		return "", err
 	}
 	if err = operations.CompareRuneSets(inputRuneSet, keyRuneSet); err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return keyFileExt, nil
 }
 
 // Collect first letter of every word in txt file
@@ -56,13 +99,14 @@ func collectBealeTxtRuneSet(txtFile *os.File) (map[rune]bool, error) {
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
+	txtFile.Seek(0, 0)
 	return runeSet, nil
 }
 
-func collectBealePdfRuneSet(txtFile *os.File) (map[rune]bool, error) {
+func collectBealePdfRuneSet(pdfFile *os.File) (map[rune]bool, error) {
 	return nil, nil
 }
 
-func collectBealeEpubRuneSet(txtFile *os.File) (map[rune]bool, error) {
+func collectBealeEpubRuneSet(epubFile *os.File) (map[rune]bool, error) {
 	return nil, nil
 }
