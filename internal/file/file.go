@@ -32,7 +32,7 @@ func CheckInputFile(file *os.File) error {
 	return nil
 }
 
-func CollectTxtRuneSet(txtFile *os.File) map[rune]bool {
+func CollectTxtRuneSet(txtFile *os.File) (map[rune]bool, error) {
 	runeSet := make(map[rune]bool)
 	scanner := bufio.NewScanner(txtFile)
 	scanner.Split(bufio.ScanWords)
@@ -42,7 +42,10 @@ func CollectTxtRuneSet(txtFile *os.File) map[rune]bool {
 			runeSet[letter] = true
 		}
 	}
-	return runeSet
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return runeSet, nil
 }
 
 func CollectPdfRuneSet(txtFile *os.File) map[rune]bool {
