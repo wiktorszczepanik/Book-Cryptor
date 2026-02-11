@@ -1,7 +1,3 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-*/
-
 package cmd
 
 import (
@@ -18,7 +14,6 @@ var keyFilePath string
 var mode string
 var outputFilePath string
 
-// encryptCmd represents the encrypt command
 var encryptCmd = &cobra.Command{
 	Use:   "encrypt",
 	Short: "Command for enrypting input file",
