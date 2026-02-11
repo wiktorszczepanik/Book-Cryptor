@@ -16,17 +16,9 @@ func GetFile(filePath string) (*os.File, error) {
 	return file, nil
 }
 
-func GetFileSize(file *os.File) (int64, error) {
-	info, err := file.Stat()
-	if err != nil {
-		return 0, err
-	}
-	return info.Size(), nil
-}
-
 func GetKeyFileExt(file *os.File) (string, error) {
 	ext := filepath.Ext(file.Name())
-	if !(ext == "txt" || ext == "pdf" || ext == "epub") {
+	if !(ext == ".txt" || ext == ".pdf" || ext == ".epub") {
 		return "", errors.New("Incorrect key file extension.")
 	}
 	return ext, nil
@@ -34,13 +26,13 @@ func GetKeyFileExt(file *os.File) (string, error) {
 
 func GetInputFileExt(file *os.File) (string, error) {
 	ext := filepath.Ext(file.Name())
-	if ext != "txt" {
+	if ext != ".txt" {
 		return "", errors.New("Incorrect input file extension.")
 	}
-	return "txt", nil
+	return ".txt", nil
 }
 
-func GetCipherSize(input *os.File) (int64, error) {
+func GetRuneFileSize(input *os.File) (int64, error) {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(bufio.ScanWords)
 	var counter int64 = 0

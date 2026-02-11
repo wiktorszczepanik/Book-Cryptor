@@ -5,9 +5,9 @@ import (
 	"book-cryptor/inter/operations"
 	"bufio"
 	"crypto/rand"
+	"fmt"
 	"math/big"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -37,11 +37,11 @@ func EncryptBeale(input, key *os.File) (string, error) {
 		return "", err
 	}
 	switch cipher.KeyFileExt {
-	case "txt":
+	case ".txt":
 		err = collectBealeReferenceFromTxt(key, cipher)
-	case "pdf":
+	case ".pdf":
 		err = encryptBealeFromPdf(input, key, cipher)
-	case "epub":
+	case ".epub":
 		err = encryptBealeFromEpub(input, key, cipher)
 	}
 	if err != nil {
@@ -60,12 +60,10 @@ func EncryptBeale(input, key *os.File) (string, error) {
 func collectInputSlice(input *os.File, cipher *bealeEncryptCipherInfo) error {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(bufio.ScanWords)
-	var counter int = 0
 	for scanner.Scan() {
 		word := scanner.Text()
 		for _, r := range word {
-			cipher.InputSlice[counter] = r
-			counter++
+			cipher.InputSlice = append(cipher.InputSlice, r)
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -89,17 +87,18 @@ func generateBealeCipher(cipher *bealeEncryptCipherInfo) error {
 
 func convertToString(cipher *bealeEncryptCipherInfo) (string, error) {
 	cipher.OutputText.Grow(len(cipher.OutputSlice))
-	for i := range cipher.OutputSlice {
-		cipher.OutputText.WriteString(strconv.Itoa(i) + ", ")
+	for _, i := range cipher.OutputSlice {
+		cipher.OutputText.WriteString(fmt.Sprintf("%d, ", i))
 	}
 	encrypted := cipher.OutputText.String()
 	return encrypted[:len(encrypted)-2], nil
 }
 
 func collectBealeReferenceFromTxt(key *os.File, cipher *bealeEncryptCipherInfo) error {
+	cipher.KeyReferenceMap = make(map[rune][]int)
 	keyScanner := bufio.NewScanner(key)
 	keyScanner.Split(bufio.ScanWords)
-	var runeCounter int = 0
+	var runeCounter int = 1
 	for keyScanner.Scan() {
 		firstRune := ([]rune(keyScanner.Text()))[0]
 		if cipher.InputRuneSet[firstRune] {
@@ -123,10 +122,10 @@ func encryptBealeFromEpub(input, key *os.File, cipher *bealeEncryptCipherInfo) e
 
 func checkBeale(input, key *os.File, cipher *bealeEncryptCipherInfo) error {
 	var err error
-	if cipher.InputFileSize, err = file.GetFileSize(input); err != nil {
+	if cipher.InputFileSize, err = file.GetRuneFileSize(input); err != nil {
 		return err
 	}
-	if cipher.KeyFileSize, err = file.GetFileSize(key); err != nil {
+	if cipher.KeyFileSize, err = file.GetRuneFileSize(key); err != nil {
 		return err
 	}
 	if cipher.InputFileExt, err = file.GetInputFileExt(input); err != nil {
@@ -139,11 +138,11 @@ func checkBeale(input, key *os.File, cipher *bealeEncryptCipherInfo) error {
 		return err
 	}
 	switch cipher.KeyFileExt {
-	case "txt":
-		cipher.KeyRuneSet, err = collectBealeTxtRuneSet(key)
-	case "pdf":
+	case ".txt":
+		err = collectBealeTxtRuneSet(key, cipher)
+	case ".pdf":
 		cipher.KeyRuneSet, err = collectBealePdfRuneSet(key)
-	case "epub":
+	case ".epub":
 		cipher.KeyRuneSet, err = collectBealeEpubRuneSet(key)
 	}
 	if err != nil {
@@ -155,19 +154,19 @@ func checkBeale(input, key *os.File, cipher *bealeEncryptCipherInfo) error {
 	return nil
 }
 
-func collectBealeTxtRuneSet(txtFile *os.File) (map[rune]bool, error) {
-	runeSet := make(map[rune]bool)
-	scanner := bufio.NewScanner(txtFile)
+func collectBealeTxtRuneSet(key *os.File, cipher *bealeEncryptCipherInfo) error {
+	cipher.KeyRuneSet = make(map[rune]bool)
+	scanner := bufio.NewScanner(key)
 	scanner.Split(bufio.ScanWords)
 	for scanner.Scan() {
 		word := scanner.Text()
-		runeSet[[]rune(word)[0]] = true
+		cipher.KeyRuneSet[[]rune(word)[0]] = true
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, err
+		return err
 	}
-	txtFile.Seek(0, 0)
-	return runeSet, nil
+	key.Seek(0, 0)
+	return nil
 }
 
 func collectBealePdfRuneSet(pdfFile *os.File) (map[rune]bool, error) {
