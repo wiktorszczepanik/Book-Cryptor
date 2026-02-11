@@ -3,7 +3,6 @@ package file
 import (
 	"bufio"
 	"errors"
-	"math/big"
 	"os"
 	"path/filepath"
 	"unicode/utf8"
@@ -56,11 +55,11 @@ func GetCipherSize(input *os.File) (int64, error) {
 	return counter, nil
 }
 
-func CollectTxtRuneSet(txtFile *os.File) (map[rune]bool, big.Int, error) {
+func CollectAllTxtRuneSet(txtFile *os.File) (map[rune]bool, int, error) {
 	runeSet := make(map[rune]bool)
 	scanner := bufio.NewScanner(txtFile)
 	scanner.Split(bufio.ScanWords)
-	var sizeCouner int64 = 0
+	var sizeCouner int = 0
 	for scanner.Scan() {
 		word := scanner.Text()
 		for _, letter := range word {
@@ -69,10 +68,10 @@ func CollectTxtRuneSet(txtFile *os.File) (map[rune]bool, big.Int, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, *big.NewInt(0), err
+		return nil, 0, err
 	}
 	txtFile.Seek(0, 0)
-	return runeSet, *big.NewInt(sizeCouner), nil
+	return runeSet, 0, nil
 }
 
 func CollectPdfRuneSet(txtFile *os.File) map[rune]bool {

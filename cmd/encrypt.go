@@ -5,8 +5,8 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"book-cryptor/internal"
-	"crypto/cipher"
+	"book-cryptor/inter/encrypt"
+	"book-cryptor/inter/file"
 	"fmt"
 	"os"
 
@@ -32,22 +32,33 @@ For example:
 Supported key formats are .txt .pdf .epub
 Supported mode techniques are "beale" "Ottendorf"`,
 	Run: func(cmd *cobra.Command, args []string) {
-		inputFile := internal.GetFile(inputFilePath)
-		keyFile := internal.GetFile(keyFilePath)
-		var cipher string
+		var inputFile, keyFile *os.File
 		var err error
+		if inputFile, err = file.GetFile(inputFilePath); err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
+		}
+		if keyFile, err = file.GetFile(keyFilePath); err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
+		}
+		var cipher string
 		switch mode {
 		case "beale":
-			cipher, err := internal.EncryptBeale(inputFile, keyFile)
+			cipher, err = encrypt.EncryptBeale(inputFile, keyFile)
 		case "ottendorf":
-			//...
+			// cipher, err = encrypt.EncryptOttendorf(inputFile, keyFile)
+			cipher, err = encrypt.EncryptBeale(inputFile, keyFile)
 		default:
 			fmt.Fprint(os.Stderr, "Incorrect encryption mode: %s", mode)
 			os.Exit(1)
 		}
+		if err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
+		}
 		defer inputFile.Close()
 		defer keyFile.Close()
-		fmt.Println("encrypt called")
 		fmt.Println(cipher)
 	},
 }
