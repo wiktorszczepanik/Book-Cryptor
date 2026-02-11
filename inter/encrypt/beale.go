@@ -68,6 +68,9 @@ func collectInputSlice(input *os.File, cipher *bealeEncryptCipherInfo) error {
 			counter++
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -103,6 +106,9 @@ func collectBealeReferenceFromTxt(key *os.File, cipher *bealeEncryptCipherInfo) 
 			cipher.KeyReferenceMap[firstRune] = append(cipher.KeyReferenceMap[firstRune], runeCounter)
 		}
 		runeCounter++
+	}
+	if err := keyScanner.Err(); err != nil {
+		return err
 	}
 	return nil
 }

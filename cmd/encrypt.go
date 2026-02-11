@@ -50,7 +50,7 @@ Supported mode techniques are "beale" "Ottendorf"`,
 			// cipher, err = encrypt.EncryptOttendorf(inputFile, keyFile)
 			cipher, err = encrypt.EncryptBeale(inputFile, keyFile)
 		default:
-			fmt.Fprint(os.Stderr, "Incorrect encryption mode: %s", mode)
+			fmt.Fprintf(os.Stderr, "Incorrect encryption mode: %s", mode)
 			os.Exit(1)
 		}
 		if err != nil {
