@@ -24,7 +24,7 @@ type bealeEncryptCipherInfo struct {
 	OutputText  strings.Builder
 }
 
-func EncryptBeale(input, key *os.File) (string, error) {
+func EncryptBeale(input, key *os.File, separator string) (string, error) {
 	cipher := &bealeEncryptCipherInfo{}
 	var err error
 	if err = checkBeale(input, key, cipher); err != nil {
@@ -48,7 +48,7 @@ func EncryptBeale(input, key *os.File) (string, error) {
 		return "", err
 	}
 	var output string
-	if output, err = oper.ConvertToString(&cipher.OutputSlice); err != nil {
+	if output, err = oper.ConvertToString(&cipher.OutputSlice, separator); err != nil {
 		return "", err
 	}
 	return output, nil

@@ -52,12 +52,26 @@ func GenerateCipher(inputSlice []rune, keyReferenceMap map[rune][]int) ([]int, e
 	return outputSlice, nil
 }
 
-func ConvertToString(outputSlice *[]int) (string, error) {
+func ConvertToString(outputSlice *[]int, separator string) (string, error) {
 	var outputText strings.Builder
 	outputText.Grow(len(*outputSlice))
 	for _, i := range *outputSlice {
-		outputText.WriteString(fmt.Sprintf("%d, ", i))
+		outputText.WriteString(fmt.Sprintf("%d"+separator, i))
 	}
 	encrypted := outputText.String()
 	return encrypted[:len(encrypted)-2], nil
+}
+
+func SaveOutput(filePath string, cipherText string) error {
+	cipherText += "\n"
+	var file *os.File
+	var err error
+	if file, err = os.Create(filePath); err != nil {
+		return err
+	}
+	defer file.Close()
+	if _, err = file.WriteString(cipherText); err != nil {
+		return err
+	}
+	return nil
 }

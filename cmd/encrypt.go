@@ -3,6 +3,7 @@ package cmd
 import (
 	"book-cryptor/inter/encrypt"
 	"book-cryptor/inter/file"
+	"book-cryptor/inter/oper"
 	"fmt"
 	"os"
 
@@ -40,10 +41,10 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		var cipher string
 		switch mode {
 		case "beale":
-			cipher, err = encrypt.EncryptBeale(inputFile, keyFile)
+			cipher, err = encrypt.EncryptBeale(inputFile, keyFile, separator)
 		case "ottendorf":
 			// cipher, err = encrypt.EncryptOttendorf(inputFile, keyFile)
-			cipher, err = encrypt.EncryptBeale(inputFile, keyFile)
+			cipher, err = encrypt.EncryptBeale(inputFile, keyFile, separator)
 		default:
 			fmt.Fprintf(os.Stderr, "Incorrect encryption mode: %s", mode)
 			os.Exit(1)
@@ -54,14 +55,23 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		}
 		defer inputFile.Close()
 		defer keyFile.Close()
-		fmt.Println(cipher)
+		if outputFilePath != "" {
+			err = oper.SaveOutput(outputFilePath, cipher)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Cannot save cipher to output file.")
+				os.Exit(1)
+			}
+		} else {
+			fmt.Println(cipher)
+		}
 	},
 }
 
 func init() {
-	encryptCmd.Flags().StringVarP(&inputFilePath, "in", "i", "", "Input file for encryption")
-	encryptCmd.Flags().StringVarP(&keyFilePath, "key", "k", "", "Key file for encryption (book/text)")
-	encryptCmd.Flags().StringVarP(&mode, "mode", "m", "", "Encryption mode implementation")
-	encryptCmd.Flags().StringVarP(&outputFilePath, "out", "o", "", "Encryption output file")
+	encryptCmd.Flags().StringVarP(&inputFilePath, "in", "i", "", "input file for encryption")
+	encryptCmd.Flags().StringVarP(&keyFilePath, "key", "k", "", "key file for encryption (book/text)")
+	encryptCmd.Flags().StringVarP(&mode, "mode", "m", "", "encryption mode implementation")
+	encryptCmd.Flags().StringVarP(&outputFilePath, "out", "o", "", "encryption output file")
+	encryptCmd.Flags().StringVarP(&separator, "separator", "s", ", ", "separator in ecryption")
 	rootCmd.AddCommand(encryptCmd)
 }
