@@ -7,7 +7,11 @@ import (
 )
 
 // var verbose bool
+var inputFilePath string
+var keyFilePath string
+var mode string
 var separator string
+var outputFilePath string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

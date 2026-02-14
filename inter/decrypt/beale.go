@@ -1,9 +1,6 @@
 package decrypt
 
 import (
-	"book-cryptor/inter/file"
-	"book-cryptor/inter/oper"
-	"bufio"
 	"os"
 	"strings"
 )
@@ -24,7 +21,7 @@ type bealeDecryptCipherInfo struct {
 	OutputText  strings.Builder
 }
 
-func decryptBeale(input, key *os.File, separator string) (string, error) {
+func DecryptBeale(input, key *os.File, separator string) (string, error) {
 	return "", nil
 }
 

@@ -10,11 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var inputFilePath string
-var keyFilePath string
-var mode string
-var outputFilePath string
-
 var encryptCmd = &cobra.Command{
 	Use:   "encrypt",
 	Short: "Command for enrypting input file",
@@ -30,11 +25,8 @@ Supported mode techniques are "beale" "Ottendorf"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var inputFile, keyFile *os.File
 		var err error
-		if inputFile, err = file.GetFile(inputFilePath); err != nil {
-			fmt.Fprint(os.Stderr, err)
-			os.Exit(1)
-		}
-		if keyFile, err = file.GetFile(keyFilePath); err != nil {
+		inputFile, keyFile, err = file.GetEssensialFiles(inputFilePath, keyFilePath)
+		if err != nil {
 			fmt.Fprint(os.Stderr, err)
 			os.Exit(1)
 		}
@@ -71,7 +63,7 @@ func init() {
 	encryptCmd.Flags().StringVarP(&inputFilePath, "in", "i", "", "input file for encryption")
 	encryptCmd.Flags().StringVarP(&keyFilePath, "key", "k", "", "key file for encryption (book/text)")
 	encryptCmd.Flags().StringVarP(&mode, "mode", "m", "", "encryption mode implementation")
+	encryptCmd.Flags().StringVarP(&separator, "separator", "s", ", ", "separator in file for encryption")
 	encryptCmd.Flags().StringVarP(&outputFilePath, "out", "o", "", "encryption output file")
-	encryptCmd.Flags().StringVarP(&separator, "separator", "s", ", ", "separator in ecryption")
 	rootCmd.AddCommand(encryptCmd)
 }
