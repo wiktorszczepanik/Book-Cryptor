@@ -19,6 +19,13 @@ var rootCmd = &cobra.Command{
 	Short: "A tool for encrypting and decrypting book ciphers",
 	Long: `Book-Cryptor is a versatile CLI tool for encrypting and decrypting book-based ciphers. 
 
+    __________      ____              __      ______                 __            
+   /         /|    / __ )____  ____  / /__   / ____/______  ______  / /_____  _____
+  /         / /   / __  / __ \/ __ \/ //_/  / /   / ___/ / / / __ \/ __/ __ \/ ___/
+ /_________/ /   / /_/ / /_/ / /_/ / ,<    / /___/ /  / /_/ / /_/ / /_/ /_/ / /    
+(_________(_/   /_____/\____/\____/_/|_|   \____/_/   \__, / .___/\__/\____/_/     
+                                                     /____/_/                 
+
 It allows users to encrypt and decrypt text using classic book cipher techniques, 
 where a specific book or text is used as the key. The tool supports various methods 
 of encoding, such as location-based ciphers (e.g., page, line, word), and offers 
