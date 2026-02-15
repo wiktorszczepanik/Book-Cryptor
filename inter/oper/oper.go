@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func CompareRuneSets(inputSet, keySet map[rune]bool) error {
 	return nil
 }
 
-func CollectInputSlice(input *os.File, runes *[]rune) error {
+func CollectPlainInputSlice(input *os.File, runes *[]rune) error {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(bufio.ScanWords)
 	for scanner.Scan() {
@@ -52,7 +53,7 @@ func GenerateCipher(inputSlice []rune, keyReferenceMap map[rune][]int) ([]int, e
 	return outputSlice, nil
 }
 
-func ConvertToString(outputSlice *[]int, separator string) (string, error) {
+func ConvertEncryptedSliceToString(outputSlice *[]int, separator string) (string, error) {
 	var outputText strings.Builder
 	outputText.Grow(len(*outputSlice))
 	for _, i := range *outputSlice {
@@ -62,16 +63,56 @@ func ConvertToString(outputSlice *[]int, separator string) (string, error) {
 	return encrypted[:len(encrypted)-2], nil
 }
 
-func SaveOutput(filePath string, cipherText string) error {
-	cipherText += "\n"
-	var file *os.File
-	var err error
-	if file, err = os.Create(filePath); err != nil {
-		return err
+func CollectAllPlainTxtRuneSet(txtFile *os.File) (map[rune]bool, int, error) {
+	runeSet := make(map[rune]bool)
+	scanner := bufio.NewScanner(txtFile)
+	scanner.Split(bufio.ScanWords)
+	var sizeCouner int = 0
+	for scanner.Scan() {
+		word := scanner.Text()
+		for _, letter := range word {
+			runeSet[letter] = true
+			sizeCouner++
+		}
 	}
-	defer file.Close()
-	if _, err = file.WriteString(cipherText); err != nil {
-		return err
+	if err := scanner.Err(); err != nil {
+		return nil, 0, err
+	}
+	txtFile.Seek(0, 0)
+	return runeSet, 0, nil
+}
+
+func CollectPdfRuneSet(txtFile *os.File) map[rune]bool {
+	return nil
+}
+
+func CollectEpubRuneSet(txtFile *os.File) map[rune]bool {
+	return nil
+}
+
+// not tested yet
+func EncryptedFileToSlice(input *os.File, inputSlice *[]int, separator string) error {
+	scanner := bufio.NewScanner(input)
+	split := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		sepLength := len(separator)
+		for i := 0; i < len(data); i++ {
+			if string(data[i:i+sepLength]) == separator {
+				return i + 1, data[:i], nil
+			}
+		}
+		if atEOF {
+			return 0, nil, nil
+		}
+		return 0, data, bufio.ErrFinalToken
+	}
+	scanner.Split(split)
+	var number int
+	var err error
+	for scanner.Scan() {
+		if number, err = strconv.Atoi(scanner.Text()); err != nil {
+			return err
+		}
+		*inputSlice = append(*inputSlice, number)
 	}
 	return nil
 }

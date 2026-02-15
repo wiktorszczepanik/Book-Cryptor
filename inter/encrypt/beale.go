@@ -10,8 +10,7 @@ import (
 
 type bealeEncryptCipherInfo struct {
 	// Files info
-	InputFileExt, KeyFileExt   string
-	InputFileSize, KeyFileSize int64
+	KeyFileExt string
 
 	// Data structures
 	InputSlice               []rune
@@ -30,7 +29,7 @@ func EncryptBeale(input, key *os.File, separator string) (string, error) {
 	if err = checkBeale(input, key, cipher); err != nil {
 		return "", err
 	}
-	if err = oper.CollectInputSlice(input, &cipher.InputSlice); err != nil {
+	if err = oper.CollectPlainInputSlice(input, &cipher.InputSlice); err != nil {
 		return "", err
 	}
 	switch cipher.KeyFileExt {
@@ -48,7 +47,7 @@ func EncryptBeale(input, key *os.File, separator string) (string, error) {
 		return "", err
 	}
 	var output string
-	if output, err = oper.ConvertToString(&cipher.OutputSlice, separator); err != nil {
+	if output, err = oper.ConvertEncryptedSliceToString(&cipher.OutputSlice, separator); err != nil {
 		return "", err
 	}
 	return output, nil
@@ -82,19 +81,13 @@ func encryptBealeFromEpub(input, key *os.File, cipher *bealeEncryptCipherInfo) e
 
 func checkBeale(input, key *os.File, cipher *bealeEncryptCipherInfo) error {
 	var err error
-	if cipher.InputFileSize, err = file.GetRuneFileSize(input); err != nil {
-		return err
-	}
-	if cipher.KeyFileSize, err = file.GetRuneFileSize(key); err != nil {
-		return err
-	}
-	if cipher.InputFileExt, err = file.GetInputFileExt(input); err != nil {
+	if err = file.CheckInputFileExt(input); err != nil {
 		return err
 	}
 	if cipher.KeyFileExt, err = file.GetKeyFileExt(key); err != nil {
 		return err
 	}
-	if cipher.InputRuneSet, cipher.OutputSize, err = file.CollectAllTxtRuneSet(input); err != nil {
+	if cipher.InputRuneSet, cipher.OutputSize, err = oper.CollectAllPlainTxtRuneSet(input); err != nil {
 		return err
 	}
 	switch cipher.KeyFileExt {

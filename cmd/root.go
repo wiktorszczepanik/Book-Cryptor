@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 It allows users to encrypt and decrypt text using classic book cipher techniques, 
 where a specific book or text is used as the key. The tool supports various methods 
 of encoding, such as location-based ciphers (e.g., page, line, word), and offers 
-an easy-to-use interface for both beginners and cryptography enthusiasts.`,
+an easy-to-use cobra interface for both beginners and classic cryptography enthusiasts.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },

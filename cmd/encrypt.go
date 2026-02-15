@@ -3,7 +3,6 @@ package cmd
 import (
 	"book-cryptor/inter/encrypt"
 	"book-cryptor/inter/file"
-	"book-cryptor/inter/oper"
 	"fmt"
 	"os"
 
@@ -48,7 +47,7 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		defer inputFile.Close()
 		defer keyFile.Close()
 		if outputFilePath != "" {
-			err = oper.SaveOutput(outputFilePath, cipher)
+			err = file.SaveOutput(outputFilePath, cipher)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Cannot save cipher to output file.")
 				os.Exit(1)

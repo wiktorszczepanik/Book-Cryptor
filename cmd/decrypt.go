@@ -3,7 +3,6 @@ package cmd
 import (
 	"book-cryptor/inter/decrypt"
 	"book-cryptor/inter/file"
-	"book-cryptor/inter/oper"
 	"fmt"
 	"os"
 
@@ -30,13 +29,13 @@ Supported mode techniques are "beale" "Ottendorf"`,
 			fmt.Fprint(os.Stderr, err)
 			os.Exit(1)
 		}
-		var plain string
+		var plaintext string
 		switch mode {
 		case "beale":
-			plain, err = decrypt.DecryptBeale(inputFile, keyFile, separator)
+			plaintext, err = decrypt.DecryptBeale(inputFile, keyFile, separator)
 		case "ottendorf":
 			// cipher, err = decrypt.DecryptOttendorf(inputFile, keyFile)
-			plain, err = decrypt.DecryptBeale(inputFile, keyFile, separator)
+			plaintext, err = decrypt.DecryptBeale(inputFile, keyFile, separator)
 		default:
 			fmt.Fprintf(os.Stderr, "Incorrect decryption mode: %s", mode)
 			os.Exit(1)
@@ -48,13 +47,13 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		defer inputFile.Close()
 		defer keyFile.Close()
 		if outputFilePath != "" {
-			err = oper.SaveOutput(outputFilePath, plain)
+			err = file.SaveOutput(outputFilePath, plaintext)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Cannot save plain text to output file.")
 				os.Exit(1)
 			}
 		} else {
-			fmt.Println(plain)
+			fmt.Println(plaintext)
 		}
 	},
 }
