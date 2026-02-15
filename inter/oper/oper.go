@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -116,3 +117,12 @@ func EncryptedFileToSlice(input *os.File, inputSlice *[]int, separator string) e
 	}
 	return nil
 }
+
+func GetSortedEncryptedInputSlice(inputSlice *[]int) []int {
+	sorted := make([]int, len(*inputSlice))
+	copy(sorted, *inputSlice)
+	slices.Sort(sorted)
+	return sorted
+}
+
+func ConvertReferenceMapToSlice()

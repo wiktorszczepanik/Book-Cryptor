@@ -34,6 +34,14 @@ func GetKeyFileExt(file *os.File) (string, error) {
 	return ext, nil
 }
 
+func CheckKeyFileExt(file *os.File) error {
+	_, err := GetKeyFileExt(file)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func CheckInputFileExt(file *os.File) error {
 	ext := filepath.Ext(file.Name())
 	if ext != ".txt" {

@@ -1,7 +1,9 @@
 package decrypt
 
 import (
+	"book-cryptor/inter/file"
 	"book-cryptor/inter/oper"
+	"bufio"
 	"os"
 	"strings"
 )
@@ -11,9 +13,8 @@ type bealeDecryptCipherInfo struct {
 	InputFileExt, KeyFileExt string
 
 	// Data structures
-	InputSlice               []int
-	InputRuneSet, KeyRuneSet map[rune]bool
-	KeyReferenceMap          map[rune][]int
+	InputSlice, SortedInputSlice []int
+	KeyReferenceMap          map[int]rune
 
 	// Output info
 	OutputSize  int
@@ -23,25 +24,43 @@ type bealeDecryptCipherInfo struct {
 
 func DecryptBeale(input, key *os.File, separator string) (string, error) {
 	plaintext := &bealeDecryptCipherInfo{}
-	// run basic checks on params
+	if err := checkBeale(input, key); err != nil {
+		return "", err
+	}
 	if err := oper.EncryptedFileToSlice(input, &plaintext.InputSlice, separator); err != nil {
 		return "", err
 	}
-	// sort input slice
+	plaintext.SortedInputSlice = oper.GetSortedEncryptedInputSlice(&plaintext.InputSlice)
 	// loop over sorted slice and create map: map[slice int] = 'character'/'rune'
+	plaintext.collectBealeTxtRuneMap(key)
 	// loop over unsorted slice and decode message
 
 	return "", nil
 }
 
-func (cipher *bealeDecryptCipherInfo) collectBealeReferenceFromTxt(key *os.File) error {
+func (plaintext *bealeDecryptCipherInfo) collectBealeTxtRuneMap(key *os.File) error {
+	plaintext.KeyReferenceMap = make(map[int]rune, len(plaintext.InputSlice))
+	scanner := bufio.NewScanner(key)
+	scanner.Split(bufio.ScanRunes)
+	wordCounter, tokenSlice := 0, 0
+	for scanner.Scan() {
+		letter := []rune(scanner.Text())[0]
+		if wordCounter == plaintext.SortedInputSlice[tokenSlice] {
+			plaintext.KeyReferenceMap[tokenSlice] = letter
+			tokenSlice++
+		}
+		wordCounter++
+	}
 	return nil
 }
 
-func decryptBealeFromPdf(input, key *os.File, cipher *bealeDecryptCipherInfo) error {
-	return nil
-}
-
-func decryptBealeFromEpub(input, key *os.File, cipher *bealeDecryptCipherInfo) error {
+func checkBeale(input, key *os.File) error {
+	var err error
+	if err = file.CheckInputFileExt(input); err != nil {
+		return err
+	}
+	if err = file.CheckKeyFileExt(key); err != nil {
+		return nil
+	}
 	return nil
 }
