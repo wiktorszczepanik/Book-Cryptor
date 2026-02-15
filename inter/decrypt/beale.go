@@ -23,9 +23,13 @@ type bealeDecryptCipherInfo struct {
 
 func DecryptBeale(input, key *os.File, separator string) (string, error) {
 	plaintext := &bealeDecryptCipherInfo{}
+	// run basic checks on params
 	if err := oper.EncryptedFileToSlice(input, &plaintext.InputSlice, separator); err != nil {
 		return "", err
 	}
+	// sort input slice
+	// loop over sorted slice and create map: map[slice int] = 'character'/'rune'
+	// loop over unsorted slice and decode message
 
 	return "", nil
 }
