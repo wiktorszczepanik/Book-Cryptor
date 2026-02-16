@@ -125,4 +125,19 @@ func GetSortedEncryptedInputSlice(inputSlice *[]int) []int {
 	return sorted
 }
 
-func ConvertReferenceMapToSlice()
+func ConvertReferenceMapToSlice(inputSlice *[]int, keyReferenceMap map[int]rune) *[]rune {
+	outputSlice := make([]rune, 0)
+	for _, value := range *inputSlice {
+		outputSlice = append(outputSlice, keyReferenceMap[value]) 
+	}
+	return &outputSlice
+} 
+
+func ConvertDecodedSliceToText(outputSlice *[]rune) string {
+	var outputText strings.Builder
+	outputText.Grow(len(*outputSlice))
+	for _, i := range *outputSlice {
+		outputText.WriteString(string(i))
+	}
+	return outputText.String()
+}

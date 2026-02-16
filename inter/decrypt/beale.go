@@ -5,7 +5,6 @@ import (
 	"book-cryptor/inter/oper"
 	"bufio"
 	"os"
-	"strings"
 )
 
 type bealeDecryptCipherInfo struct {
@@ -14,14 +13,14 @@ type bealeDecryptCipherInfo struct {
 
 	// Data structures
 	InputSlice, SortedInputSlice []int
-	KeyReferenceMap          map[int]rune
+	KeyReferenceMap              map[int]rune
 
 	// Output info
-	OutputSize  int
-	OutputSlice []int
-	OutputText  strings.Builder
+	OutputSlice []rune
+	OutputText  string
 }
 
+// Not tested...
 func DecryptBeale(input, key *os.File, separator string) (string, error) {
 	plaintext := &bealeDecryptCipherInfo{}
 	if err := checkBeale(input, key); err != nil {
@@ -31,11 +30,10 @@ func DecryptBeale(input, key *os.File, separator string) (string, error) {
 		return "", err
 	}
 	plaintext.SortedInputSlice = oper.GetSortedEncryptedInputSlice(&plaintext.InputSlice)
-	// loop over sorted slice and create map: map[slice int] = 'character'/'rune'
 	plaintext.collectBealeTxtRuneMap(key)
-	// loop over unsorted slice and decode message
-
-	return "", nil
+	plaintext.OutputSlice = *oper.ConvertReferenceMapToSlice(&plaintext.InputSlice, plaintext.KeyReferenceMap)
+	plaintext.OutputText = oper.ConvertDecodedSliceToText(&plaintext.OutputSlice)
+	return plaintext.OutputText, nil
 }
 
 func (plaintext *bealeDecryptCipherInfo) collectBealeTxtRuneMap(key *os.File) error {
