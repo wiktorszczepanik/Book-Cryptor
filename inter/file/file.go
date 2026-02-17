@@ -1,9 +1,11 @@
 package file
 
 import (
+	"bufio"
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func GetEssensialFiles(inputPath, keyPath string) (*os.File, *os.File, error) {
@@ -62,4 +64,18 @@ func SaveOutput(filePath string, cipherText string) error {
 		return err
 	}
 	return nil
+}
+
+func FileContentToString(input *os.File) (string, error) {
+	var content strings.Builder
+	scanner := bufio.NewScanner(input)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		word := scanner.Text()
+		content.WriteString(word)
+	}
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+	return content.String(), nil
 }
