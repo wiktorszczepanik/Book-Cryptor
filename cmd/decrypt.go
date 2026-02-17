@@ -32,10 +32,10 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		var plaintext string
 		switch mode {
 		case "beale":
-			plaintext, err = decrypt.DecryptBeale(inputFile, keyFile, separator)
+			plaintext, err = decrypt.Beale(inputFile, keyFile, separator)
 		case "ottendorf":
 			// cipher, err = decrypt.DecryptOttendorf(inputFile, keyFile)
-			plaintext, err = decrypt.DecryptBeale(inputFile, keyFile, separator)
+			plaintext, err = decrypt.Beale(inputFile, keyFile, separator)
 		default:
 			fmt.Fprintf(os.Stderr, "Incorrect decryption mode: %s", mode)
 			os.Exit(1)

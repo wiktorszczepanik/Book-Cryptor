@@ -32,10 +32,10 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		var cipher string
 		switch mode {
 		case "beale":
-			cipher, err = encrypt.EncryptBeale(inputFile, keyFile, separator)
+			cipher, err = encrypt.Beale(inputFile, keyFile, separator)
 		case "ottendorf":
 			// cipher, err = encrypt.EncryptOttendorf(inputFile, keyFile)
-			cipher, err = encrypt.EncryptBeale(inputFile, keyFile, separator)
+			cipher, err = encrypt.Beale(inputFile, keyFile, separator)
 		default:
 			fmt.Fprintf(os.Stderr, "Incorrect encryption mode: %s", mode)
 			os.Exit(1)

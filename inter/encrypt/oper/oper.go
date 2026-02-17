@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"math/big"
 	"os"
-	"slices"
-	"strconv"
 	"strings"
 )
 
@@ -25,7 +23,7 @@ func CompareRuneSets(inputSet, keySet map[rune]bool) error {
 	return nil
 }
 
-func CollectPlainInputSlice(input *os.File, runes *[]rune) error {
+func CollectPlainSlice(input *os.File, runes *[]rune) error {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(bufio.ScanWords)
 	for scanner.Scan() {
@@ -54,7 +52,7 @@ func GenerateCipher(inputSlice []rune, keyReferenceMap map[rune][]int) ([]int, e
 	return outputSlice, nil
 }
 
-func ConvertEncryptedSliceToString(outputSlice *[]int, separator string) (string, error) {
+func ConvertSliceToString(outputSlice *[]int, separator string) (string, error) {
 	var outputText strings.Builder
 	outputText.Grow(len(*outputSlice))
 	for _, i := range *outputSlice {
@@ -89,55 +87,4 @@ func CollectPdfRuneSet(txtFile *os.File) map[rune]bool {
 
 func CollectEpubRuneSet(txtFile *os.File) map[rune]bool {
 	return nil
-}
-
-// not tested yet
-func EncryptedFileToSlice(input *os.File, inputSlice *[]int, separator string) error {
-	scanner := bufio.NewScanner(input)
-	split := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		sepLength := len(separator)
-		for i := 0; i < len(data); i++ {
-			if string(data[i:i+sepLength]) == separator {
-				return i + 1, data[:i], nil
-			}
-		}
-		if atEOF {
-			return 0, nil, nil
-		}
-		return 0, data, bufio.ErrFinalToken
-	}
-	scanner.Split(split)
-	var number int
-	var err error
-	for scanner.Scan() {
-		if number, err = strconv.Atoi(scanner.Text()); err != nil {
-			return err
-		}
-		*inputSlice = append(*inputSlice, number)
-	}
-	return nil
-}
-
-func GetSortedEncryptedInputSlice(inputSlice *[]int) []int {
-	sorted := make([]int, len(*inputSlice))
-	copy(sorted, *inputSlice)
-	slices.Sort(sorted)
-	return sorted
-}
-
-func ConvertReferenceMapToSlice(inputSlice *[]int, keyReferenceMap map[int]rune) *[]rune {
-	outputSlice := make([]rune, 0)
-	for _, value := range *inputSlice {
-		outputSlice = append(outputSlice, keyReferenceMap[value]) 
-	}
-	return &outputSlice
-} 
-
-func ConvertDecodedSliceToText(outputSlice *[]rune) string {
-	var outputText strings.Builder
-	outputText.Grow(len(*outputSlice))
-	for _, i := range *outputSlice {
-		outputText.WriteString(string(i))
-	}
-	return outputText.String()
 }

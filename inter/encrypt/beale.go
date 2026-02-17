@@ -2,7 +2,7 @@ package encrypt
 
 import (
 	"book-cryptor/inter/file"
-	"book-cryptor/inter/oper"
+	"book-cryptor/inter/encrypt/oper"
 	"bufio"
 	"os"
 	"strings"
@@ -23,13 +23,13 @@ type bealeEncryptCipherInfo struct {
 	OutputText  strings.Builder
 }
 
-func EncryptBeale(input, key *os.File, separator string) (string, error) {
+func Beale(input, key *os.File, separator string) (string, error) {
 	cipher := &bealeEncryptCipherInfo{}
 	var err error
 	if err = checkBeale(input, key, cipher); err != nil {
 		return "", err
 	}
-	if err = oper.CollectPlainInputSlice(input, &cipher.InputSlice); err != nil {
+	if err = oper.CollectPlainSlice(input, &cipher.InputSlice); err != nil {
 		return "", err
 	}
 	switch cipher.KeyFileExt {
@@ -47,7 +47,7 @@ func EncryptBeale(input, key *os.File, separator string) (string, error) {
 		return "", err
 	}
 	var output string
-	if output, err = oper.ConvertEncryptedSliceToString(&cipher.OutputSlice, separator); err != nil {
+	if output, err = oper.ConvertSliceToString(&cipher.OutputSlice, separator); err != nil {
 		return "", err
 	}
 	return output, nil
@@ -68,6 +68,7 @@ func (cipher *bealeEncryptCipherInfo) collectBealeReferenceFromTxt(key *os.File)
 	if err := keyScanner.Err(); err != nil {
 		return err
 	}
+	key.Seek(0, 0)
 	return nil
 }
 

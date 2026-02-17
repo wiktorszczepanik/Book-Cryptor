@@ -1,16 +1,13 @@
 package decrypt
 
 import (
+	"book-cryptor/inter/decrypt/oper"
 	"book-cryptor/inter/file"
-	"book-cryptor/inter/oper"
 	"bufio"
 	"os"
 )
 
 type bealeDecryptCipherInfo struct {
-	// Files info
-	InputFileExt, KeyFileExt string
-
 	// Data structures
 	InputSlice, SortedInputSlice []int
 	KeyReferenceMap              map[int]rune
@@ -21,19 +18,30 @@ type bealeDecryptCipherInfo struct {
 }
 
 // Not tested...
-func DecryptBeale(input, key *os.File, separator string) (string, error) {
+func Beale(input, key *os.File, separator string) (string, error) {
 	plaintext := &bealeDecryptCipherInfo{}
 	if err := checkBeale(input, key); err != nil {
 		return "", err
 	}
-	if err := oper.EncryptedFileToSlice(input, &plaintext.InputSlice, separator); err != nil {
+	if err := oper.FileToSlice(input, &plaintext.InputSlice, separator); err != nil {
 		return "", err
 	}
-	plaintext.SortedInputSlice = oper.GetSortedEncryptedInputSlice(&plaintext.InputSlice)
+	plaintext.SortedInputSlice = oper.SortSlice(&plaintext.InputSlice)
 	plaintext.collectBealeTxtRuneMap(key)
-	plaintext.OutputSlice = *oper.ConvertReferenceMapToSlice(&plaintext.InputSlice, plaintext.KeyReferenceMap)
-	plaintext.OutputText = oper.ConvertDecodedSliceToText(&plaintext.OutputSlice)
+	plaintext.OutputSlice = *oper.ReferenceMapToSlice(&plaintext.InputSlice, plaintext.KeyReferenceMap)
+	plaintext.OutputText = oper.DecodedSliceToText(&plaintext.OutputSlice)
 	return plaintext.OutputText, nil
+}
+
+func checkBeale(input, key *os.File) error {
+	var err error
+	if err = file.CheckInputFileExt(input); err != nil {
+		return err
+	}
+	if err = file.CheckKeyFileExt(key); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (plaintext *bealeDecryptCipherInfo) collectBealeTxtRuneMap(key *os.File) error {
@@ -49,16 +57,6 @@ func (plaintext *bealeDecryptCipherInfo) collectBealeTxtRuneMap(key *os.File) er
 		}
 		wordCounter++
 	}
-	return nil
-}
-
-func checkBeale(input, key *os.File) error {
-	var err error
-	if err = file.CheckInputFileExt(input); err != nil {
-		return err
-	}
-	if err = file.CheckKeyFileExt(key); err != nil {
-		return nil
-	}
+	key.Seek(0, 0)
 	return nil
 }

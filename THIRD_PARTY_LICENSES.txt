@@ -1,0 +1,4 @@
+Used datasets:
+https://people.sc.fsu.edu/~jburkardt/datasets/beale_cipher/beale_cipher2.txt
+https://people.sc.fsu.edu/~jburkardt/datasets/beale_cipher/beale_cipher2_deciphered.txt
+https://people.sc.fsu.edu/~jburkardt/datasets/beale_cipher/declaration_of_independence.txt
