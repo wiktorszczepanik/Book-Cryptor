@@ -35,6 +35,7 @@ func CollectPlainSlice(input *os.File, runes *[]rune) error {
 	if err := scanner.Err(); err != nil {
 		return err
 	}
+	input.Seek(0, 0)
 	return nil
 }
 

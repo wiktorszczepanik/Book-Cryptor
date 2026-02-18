@@ -1,8 +1,8 @@
 package encrypt
 
 import (
-	"book-cryptor/inter/file"
 	"book-cryptor/inter/encrypt/oper"
+	"book-cryptor/inter/file"
 	"bufio"
 	"os"
 	"strings"
