@@ -8,18 +8,41 @@ import (
 	"math/big"
 	"os"
 	"strings"
+	"unicode"
 )
 
 func CompareRuneSets(inputSet, keySet map[rune]bool) error {
+	// fmt.Println("---------------------------------")
+	// fmt.Println(inputSet)
+	// fmt.Println("---------------------------------")
+	// fmt.Println(keySet)
+	// fmt.Println("---------------------------------")
+	// fmt.Println("")
 	if len(inputSet) > len(keySet) {
-		return errors.New("Not enough available key file characters to encrypt input file.")
+		return errors.New("Not enough available key file characters to encrypt input file.\n")
 	}
 	for key := range inputSet {
 		_, state := keySet[key]
 		if !state {
-			return errors.New("Not enough available key file characters to encrypt input file.")
+			return errors.New("Input file character not found in provided key.\n")
 		}
 	}
+	return nil
+}
+
+func CollectExactPlainSlice(input *os.File, runes *[]rune) error {
+	scanner := bufio.NewScanner(input)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		word := scanner.Text()
+		for _, r := range word {
+			*runes = append(*runes, r)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+	input.Seek(0, 0)
 	return nil
 }
 
@@ -29,7 +52,9 @@ func CollectPlainSlice(input *os.File, runes *[]rune) error {
 	for scanner.Scan() {
 		word := scanner.Text()
 		for _, r := range word {
-			*runes = append(*runes, r)
+			if unicode.IsLetter(r) {
+				*runes = append(*runes, unicode.ToLower(r))
+			}
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -63,7 +88,7 @@ func ConvertSliceToString(outputSlice *[]int, separator string) (string, error) 
 	return encrypted[:len(encrypted)-2], nil
 }
 
-func CollectAllPlainTxtRuneSet(txtFile *os.File) (map[rune]bool, int, error) {
+func CollectExactPlainTxtRuneSet(txtFile *os.File) (map[rune]bool, int, error) {
 	runeSet := make(map[rune]bool)
 	scanner := bufio.NewScanner(txtFile)
 	scanner.Split(bufio.ScanWords)
@@ -72,6 +97,28 @@ func CollectAllPlainTxtRuneSet(txtFile *os.File) (map[rune]bool, int, error) {
 		word := scanner.Text()
 		for _, letter := range word {
 			runeSet[letter] = true
+			sizeCouner++
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, 0, err
+	}
+	txtFile.Seek(0, 0)
+	return runeSet, 0, nil
+}
+
+func CollectPlainTxtRuneSet(txtFile *os.File) (map[rune]bool, int, error) {
+	runeSet := make(map[rune]bool)
+	scanner := bufio.NewScanner(txtFile)
+	scanner.Split(bufio.ScanWords)
+	var sizeCouner int = 0
+	for scanner.Scan() {
+		word := scanner.Text()
+		for _, r := range word {
+			// NOt sure here
+			if unicode.IsLetter(r) {
+				runeSet[unicode.ToLower(r)] = true
+			}
 			sizeCouner++
 		}
 	}

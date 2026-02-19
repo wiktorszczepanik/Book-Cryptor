@@ -11,6 +11,7 @@ var inputFilePath string
 var keyFilePath string
 var mode string
 var separator string
+var exact bool
 var outputFilePath string
 
 // rootCmd represents the base command when called without any subcommands

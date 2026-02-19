@@ -32,10 +32,10 @@ Supported mode techniques are "beale" "Ottendorf"`,
 		var cipher string
 		switch mode {
 		case "beale":
-			cipher, err = encrypt.Beale(inputFile, keyFile, separator)
+			cipher, err = encrypt.Beale(inputFile, keyFile, separator, exact)
 		case "ottendorf":
 			// cipher, err = encrypt.EncryptOttendorf(inputFile, keyFile)
-			cipher, err = encrypt.Beale(inputFile, keyFile, separator)
+			cipher, err = encrypt.Beale(inputFile, keyFile, separator, exact)
 		default:
 			fmt.Fprintf(os.Stderr, "Incorrect encryption mode: %s", mode)
 			os.Exit(1)
@@ -64,5 +64,6 @@ func init() {
 	encryptCmd.Flags().StringVarP(&mode, "mode", "m", "", "encryption mode implementation")
 	encryptCmd.Flags().StringVarP(&separator, "separator", "s", ", ", "separator in file for encryption")
 	encryptCmd.Flags().StringVarP(&outputFilePath, "out", "o", "", "encryption output file")
+	encryptCmd.Flags().BoolVarP(&exact, "exact", "e", false, "include exact set of characters in input file")
 	rootCmd.AddCommand(encryptCmd)
 }

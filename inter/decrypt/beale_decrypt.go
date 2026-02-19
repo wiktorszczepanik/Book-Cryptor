@@ -7,7 +7,11 @@ import (
 	"os"
 )
 
-type bealeDecryptCipherInfo struct {
+type bealeDecryption interface {
+	collectBealeTxtRuneMap(key *os.File) error
+}
+
+type bealeDecryptInfo struct {
 	// Data structures
 	InputSlice, SortedInputSlice []int
 	KeyReferenceMap              map[int]rune
@@ -19,18 +23,22 @@ type bealeDecryptCipherInfo struct {
 
 // Not tested...
 func Beale(input, key *os.File, separator string) (string, error) {
-	plaintext := &bealeDecryptCipherInfo{}
-	if err := checkBeale(input, key); err != nil {
-		return "", err
+	var plaintext bealeDecryption = &bealeDecryptInfo{}
+	var output string = ""
+	if plaintext, ok := plaintext.(*bealeDecryptInfo); ok {
+		if err := checkBeale(input, key); err != nil {
+			return "", err
+		}
+		if err := oper.FileToSlice(input, &plaintext.InputSlice, separator); err != nil {
+			return "", err
+		}
+		plaintext.SortedInputSlice = oper.SortSlice(&plaintext.InputSlice)
+		plaintext.collectBealeTxtRuneMap(key)
+		plaintext.OutputSlice = *oper.ReferenceMapToSlice(&plaintext.InputSlice, plaintext.KeyReferenceMap)
+		plaintext.OutputText = oper.DecodedSliceToText(&plaintext.OutputSlice)
+		output = plaintext.OutputText
 	}
-	if err := oper.FileToSlice(input, &plaintext.InputSlice, separator); err != nil {
-		return "", err
-	}
-	plaintext.SortedInputSlice = oper.SortSlice(&plaintext.InputSlice)
-	plaintext.collectBealeTxtRuneMap(key)
-	plaintext.OutputSlice = *oper.ReferenceMapToSlice(&plaintext.InputSlice, plaintext.KeyReferenceMap)
-	plaintext.OutputText = oper.DecodedSliceToText(&plaintext.OutputSlice)
-	return plaintext.OutputText, nil
+	return output, nil
 }
 
 func checkBeale(input, key *os.File) error {
@@ -44,7 +52,7 @@ func checkBeale(input, key *os.File) error {
 	return nil
 }
 
-func (plaintext *bealeDecryptCipherInfo) collectBealeTxtRuneMap(key *os.File) error {
+func (plaintext *bealeDecryptInfo) collectBealeTxtRuneMap(key *os.File) error {
 	plaintext.KeyReferenceMap = make(map[int]rune, len(plaintext.InputSlice))
 	scanner := bufio.NewScanner(key)
 	scanner.Split(bufio.ScanRunes)

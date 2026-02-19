@@ -7,11 +7,12 @@ import (
 	"testing"
 )
 
-func TestBealePlainTextLoremIpsum(t *testing.T) {
+func TestExactBealePlainTextLoremIpsum(t *testing.T) {
 	const smallLoremIpsum = "Loremipsum"
-	const inputFilePath = "test/SmallLoremIpsum.txt"
-	const keyFilePath = "test/LoremIpsum.txt"
+	const inputFilePath = "test/PlainLoremIpsum.txt"
+	const keyFilePath = "test/KeyLoremIpsum.txt"
 	const separator = ", "
+	const exact = false
 	want := [][]string{
 		{"1"},        // L: 1
 		{"55", "63"}, // o: 2
@@ -38,7 +39,7 @@ func TestBealePlainTextLoremIpsum(t *testing.T) {
 	if plaintext != smallLoremIpsum {
 		t.Errorf(`%v, want match for %v`, plaintext, smallLoremIpsum)
 	}
-	msg, err := Beale(inputFile, keyFile, separator)
+	msg, err := Beale(inputFile, keyFile, separator, exact)
 	if err != nil {
 		t.Errorf(`%v, Beale encryption - %v`, msg, err)
 	}
