@@ -2,34 +2,33 @@ package oper
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"slices"
 	"strconv"
 	"strings"
 )
 
-// not tested yet
 func FileToSlice(input *os.File, inputSlice *[]int, separator string) error {
 	scanner := bufio.NewScanner(input)
 	split := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		sepLength := len(separator)
-		for i := 0; i < len(data); i++ {
-			if string(data[i:i+sepLength]) == separator {
-				return i + 1, data[:i], nil
-			}
+		if i := strings.Index(string(data), separator); i >= 0 {
+			return i + len(separator), data[:i], nil
 		}
-		if atEOF {
-			return 0, nil, nil
+		if atEOF && len(data) > 0 {
+			return len(data), data, nil
 		}
-		return 0, data, bufio.ErrFinalToken
+		return 0, nil, nil
 	}
 	scanner.Split(split)
 	var number int
 	var err error
 	for scanner.Scan() {
-		if number, err = strconv.Atoi(scanner.Text()); err != nil {
+		stringNumber := strings.TrimSpace(scanner.Text())
+		if number, err = strconv.Atoi(stringNumber); err != nil {
 			return err
 		}
+		fmt.Println(number)
 		*inputSlice = append(*inputSlice, number)
 	}
 	input.Seek(0, 0)
