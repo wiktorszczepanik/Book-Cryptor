@@ -2,7 +2,6 @@ package oper
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"slices"
 	"strconv"
@@ -28,7 +27,6 @@ func FileToSlice(input *os.File, inputSlice *[]int, separator string) error {
 		if number, err = strconv.Atoi(stringNumber); err != nil {
 			return err
 		}
-		fmt.Println(number)
 		*inputSlice = append(*inputSlice, number)
 	}
 	input.Seek(0, 0)
@@ -50,11 +48,11 @@ func ReferenceMapToSlice(inputSlice *[]int, keyReferenceMap map[int]rune) *[]run
 	return &outputSlice
 }
 
-func DecodedSliceToText(outputSlice *[]rune) string {
+func DecodedSliceToText(outputSlice *[]rune, inputSlice *[]int, keyReference map[int]rune) string {
 	var outputText strings.Builder
 	outputText.Grow(len(*outputSlice))
-	for _, i := range *outputSlice {
-		outputText.WriteString(string(i))
+	for _, i := range *inputSlice {
+		outputText.WriteString(string(keyReference[i]))
 	}
 	return outputText.String()
 }

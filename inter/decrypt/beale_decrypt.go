@@ -35,7 +35,7 @@ func Beale(input, key *os.File, separator string) (string, error) {
 		plaintext.SortedInputSlice = oper.SortSlice(&plaintext.InputSlice)
 		plaintext.collectBealeTxtRuneMap(key)
 		plaintext.OutputSlice = *oper.ReferenceMapToSlice(&plaintext.InputSlice, plaintext.KeyReferenceMap)
-		plaintext.OutputText = oper.DecodedSliceToText(&plaintext.OutputSlice)
+		plaintext.OutputText = oper.DecodedSliceToText(&plaintext.OutputSlice, &plaintext.InputSlice, plaintext.KeyReferenceMap)
 		output = plaintext.OutputText
 	}
 	return output, nil
@@ -55,12 +55,12 @@ func checkBeale(input, key *os.File) error {
 func (plaintext *bealeDecryptInfo) collectBealeTxtRuneMap(key *os.File) error {
 	plaintext.KeyReferenceMap = make(map[int]rune, len(plaintext.InputSlice))
 	scanner := bufio.NewScanner(key)
-	scanner.Split(bufio.ScanRunes)
-	wordCounter, tokenSlice := 0, 0
-	for scanner.Scan() {
+	scanner.Split(bufio.ScanWords)
+	wordCounter, tokenSlice := 1, 0
+	for scanner.Scan() && tokenSlice < len(plaintext.SortedInputSlice) {
 		letter := []rune(scanner.Text())[0]
 		if wordCounter == plaintext.SortedInputSlice[tokenSlice] {
-			plaintext.KeyReferenceMap[tokenSlice] = letter
+			plaintext.KeyReferenceMap[plaintext.SortedInputSlice[tokenSlice]] = letter
 			tokenSlice++
 		}
 		wordCounter++
