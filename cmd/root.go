@@ -18,7 +18,7 @@ var outputFilePath string
 var rootCmd = &cobra.Command{
 	Use:   "book-cryptor",
 	Short: "A tool for encrypting and decrypting book ciphers",
-	Long: `Book-Cryptor is a versatile CLI tool for encrypting and decrypting book-based ciphers. 
+	Long: `Book-Cryptor is a versatile CLI tool for encrypting and decrypting book based ciphers. 
 
     __________      ____              __      ______                 __            
    /         /|    / __ )____  ____  / /__   / ____/______  ______  / /_____  _____
@@ -29,8 +29,8 @@ var rootCmd = &cobra.Command{
 
 It allows users to encrypt and decrypt text using classic book cipher techniques, 
 where a specific book or text is used as the key. The tool supports various methods 
-of encoding, such as location-based ciphers (e.g., page, line, word), and offers 
-an easy-to-use cobra interface for both beginners and classic cryptography enthusiasts.`,
+of encoding, such as location based ciphers (e.g. page, line, word), and offers 
+an easy to use cobra interface for both beginners and classic cryptography enthusiasts.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
